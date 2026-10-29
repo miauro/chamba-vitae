@@ -1,0 +1,7 @@
+node_modules
+dist
+*.local
+.DS_Store
+
+# Tus CVs personales (JSON con datos de contacto) no se suben al repo
+mis-cvs/
