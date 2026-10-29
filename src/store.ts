@@ -4,15 +4,19 @@ import { normalizeCV } from './model';
 import { sampleCV } from './sample';
 import type { CV } from './types';
 
-const CV_KEY = 'ceuvexpress:cv';
-const PREFS_KEY = 'ceuvexpress:prefs';
+const CV_KEY = 'chamba-vitae:cv';
+const PREFS_KEY = 'chamba-vitae:prefs';
+/** Claves del nombre anterior del proyecto: se leen si no hay datos con las nuevas. */
+const LEGACY_KEYS: Record<string, string> = { [CV_KEY]: 'ceuvexpress:cv', [PREFS_KEY]: 'ceuvexpress:prefs' };
 const HISTORY_LIMIT = 60;
 /** Ediciones seguidas en menos de este tiempo cuentan como un solo paso de deshacer. */
 const MERGE_MS = 800;
 
+const read = (key: string) => localStorage.getItem(key) ?? localStorage.getItem(LEGACY_KEYS[key]);
+
 function loadCV(): CV | null {
   try {
-    const raw = localStorage.getItem(CV_KEY);
+    const raw = read(CV_KEY);
     return raw ? normalizeCV(JSON.parse(raw)) : null;
   } catch {
     return null;
@@ -96,6 +100,8 @@ export interface Prefs {
   uiLang: UILang;
   lang: string;
   variantId: string;
+  /** Ya vio (o se saltó) la guía de bienvenida. */
+  tourDone: boolean;
 }
 
 export function usePrefs() {
@@ -104,9 +110,10 @@ export function usePrefs() {
       uiLang: navigator.language?.toLowerCase().startsWith('es') ? 'es' : 'en',
       lang: '',
       variantId: '',
+      tourDone: false,
     };
     try {
-      return { ...defaults, ...JSON.parse(localStorage.getItem(PREFS_KEY) || '{}') };
+      return { ...defaults, ...JSON.parse(read(PREFS_KEY) || '{}') };
     } catch {
       return defaults;
     }

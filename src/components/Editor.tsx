@@ -270,7 +270,7 @@ export function SectionsEditor() {
   };
 
   return (
-    <div className="stack">
+    <div className="stack" data-tour="sections">
       <h2 className="pane-title">{t('sections')}</h2>
       <SortableList
         items={cv.sections}
@@ -292,7 +292,9 @@ export function SectionsEditor() {
           const KindIcon = KIND_ICON[k];
           return (
             <button key={k} type="button" className="kind-btn" onClick={() => add(k)}>
-              <KindIcon size={20} />
+              <span className={`kind-icon k-${k}`}>
+                <KindIcon size={18} />
+              </span>
               <span>
                 <b>{t(`kind_${k}` as UIKey)}</b>
                 <small>{t(`kindDesc_${k}` as UIKey)}</small>
@@ -340,7 +342,7 @@ function SectionCard({
         <DragHandle {...handle} />
         <button type="button" className="card-title" onClick={onToggle} aria-expanded={open}>
           <IconChevron className={`chev${open ? ' rot' : ''}`} />
-          <span className="kind-icon" title={kindLabel}>
+          <span className={`kind-icon k-${s.kind}`} title={kindLabel}>
             <KindIcon />
           </span>
           <span>{title}</span>

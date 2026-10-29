@@ -1,7 +1,30 @@
+# Dependencias y build
 node_modules
 dist
 *.local
-.DS_Store
 
-# Tus CVs personales (JSON con datos de contacto) no se suben al repo
+# Datos personales: nunca al repo
+# · tus CVs (JSON con contacto, foto…) y sus copias de seguridad
 mis-cvs/
+*.backup*.json
+# · CVs exportados desde la app que se queden en la carpeta del proyecto
+/cv-*.json
+# · CVs originales en PDF/Word que tengas a mano para importar
+/*.pdf
+/*.docx
+/*.doc
+
+# Secretos y configuración local
+.env
+.env.*
+
+# Registros y sistema
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea

@@ -183,7 +183,7 @@ export function PreviewPane({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="preview-area">
+    <div className="preview-area" data-tour="preview">
       <div className="preview-pane" ref={outer}>
         <div className="preview-scale" style={{ width: size.w * scale, height: size.h * scale }}>
           <div className="preview-inner" ref={inner} style={{ transform: `scale(${scale})` }}>

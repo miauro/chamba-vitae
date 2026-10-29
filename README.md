@@ -1,62 +1,94 @@
-﻿# CV Express
+﻿<p align="center">
+  <img src="src/assets/logo.svg" alt="Chamba Vitae" width="360">
+</p>
 
-Editor de CV en el navegador: editas, reordenas, cambias de idioma y descargas el PDF. Sin servidor y sin cuentas: tus datos se quedan en tu navegador y en el JSON que tú exportas.
+<p align="center">
+  Tu CV, una vez. Adaptado a cada oferta, en cada idioma, listo en PDF.<br>
+  Sin cuentas, sin servidores: tus datos se quedan en tu navegador.
+</p>
 
-*English below.*
+<p align="center"><em><a href="#english">English below</a></em></p>
 
-## Uso
+---
 
-1. Abre la app (GitHub Pages o en local, ver abajo).
-2. Edita a la izquierda; la derecha es exactamente el PDF.
-3. **Archivo → Exportar JSON** para guardar una copia. **Importar JSON** (o arrastrar el archivo a la ventana) para recuperarla.
-4. **Descargar PDF** abre el diálogo de impresión: elige *Guardar como PDF* y desactiva *Encabezados y pies de página*.
+## Qué es
 
-### Lo que puedes hacer
+Chamba Vitae es un editor de CV que funciona en el navegador. Rellenas tu información una vez y desde ahí:
 
-- **Arrastrar** secciones, entradas, contactos y filas para reordenarlos.
-- **Multidioma**: cada texto guarda una versión por idioma (`{ "es": "…", "en": "…" }`). Cambias el idioma del CV con un clic. Si un texto no está traducido se usa el de otro idioma (en el editor aparece en ámbar, en cursiva), así que solo traduces lo que cambia. Puedes añadir más idiomas en *Diseño*.
-- **Variantes**: versiones del CV para distintas ofertas a partir de los mismos datos. El ojo 👁 oculta un elemento solo en la variante activa, y cada variante puede tener su propio cargo.
-- **Negritas**: `**así**` en cualquier texto.
-- **Fechas**: año, o año y mes. Marca *Actualmente* para que salga «2022 - Hoy» o «Actualidad». *Ordenar por fecha* pone lo más reciente arriba.
-- **Diseño**: fuente (o cualquier fuente instalada en tu equipo), tamaño del nombre, colores y foto en blanco y negro.
-- **Deshacer y rehacer** con Ctrl+Z y Ctrl+Shift+Z.
+- **Cambias de idioma** con un clic (cada texto guarda su versión en español, inglés…).
+- **Creas variantes** para distintos tipos de oferta (diseño, tienda, oficina…) ocultando lo que no toca, sin duplicar nada.
+- **Reordenas** secciones y entradas arrastrando.
+- **Importas** tu CV actual desde PDF o Word para no empezar de cero.
+- **Descargas el PDF** con texto real (seleccionable y legible por los filtros automáticos de las empresas).
 
-### Tipos de sección
+## Primeros pasos
 
-| Tipo | Para | Ejemplo |
-|---|---|---|
-| Texto | Párrafos | sobre mí, destrezas |
-| Lista con fechas | Título, subtítulo, fechas, puntos → | formación, experiencia |
-| Pares | Etiqueta y valor | idiomas |
-| Habilidades | Grupo, categorías y lista | herramientas |
+La primera vez que abras la app verás una guía rápida; puedes volver a verla con el botón **?** de la barra superior. En resumen:
 
-## Desarrollo
+1. **Empieza por tu CV actual.** *Archivo → Importar CV (PDF, Word…)* o arrastra el archivo a la ventana. La app reconoce nombre, contacto, secciones, fechas y entradas. Revisa el resultado: la conversión es automática y no siempre acierta.
+   *¿Prefieres empezar de cero?* *Archivo → CV en blanco*. El CV de ejemplo (Alex Romero) te sirve de referencia.
+2. **Edita a la izquierda; a la derecha ves el PDF.** Pulsa una sección para abrirla. Escribe `**así**` para poner negrita. Arrastra los puntitos ⋮⋮ para reordenar.
+3. **Traduce.** Cambia el *Idioma del CV* arriba (ES / EN). Los campos sin traducir salen en ámbar con el texto del otro idioma como pista; el botón `ES → EN` lo copia tal cual si es igual en los dos.
+4. **Crea una variante por tipo de oferta.** En la pestaña *Variantes*, *Nueva variante*. Luego, en *Contenido*, el ojo 👁 oculta una sección o entrada **solo en esa variante**. Cada variante puede tener su propio cargo.
+5. **Ajusta el diseño.** Pestaña *Diseño*: tipografía (o cualquier fuente instalada en tu equipo), tamaño del nombre, colores y foto.
+6. **Descarga el PDF.** En el diálogo de impresión elige *Guardar como PDF* y desactiva *Encabezados y pies de página*.
+7. **Haz copia de seguridad.** *Archivo → Exportar JSON* de vez en cuando. Si cambias de navegador o de ordenador, *Importar JSON* y listo.
+
+> **Privacidad:** no hay registro ni servidor. Todo se guarda en el almacenamiento local de tu navegador y en los JSON que tú exportes. Si borras los datos del navegador sin haber exportado, se pierden.
+
+### Importar desde PDF o Word: qué esperar
+
+Funciona sin IA y sin enviar nada fuera: lee el texto del archivo y aplica reglas.
+
+- ✅ PDF con texto real (exportados desde Word, Canva, Figma, Google Docs…), incluso a dos columnas.
+- ✅ Word `.docx` y texto plano `.txt`.
+- ⚠️ Reconoce títulos de sección habituales en español e inglés (*Experiencia, Formación, Idiomas, Skills…*). Si tu CV usa otros, puede mezclar secciones.
+- ❌ PDF escaneados (son imágenes, no tienen texto) y Word antiguo `.doc` (guárdalo como `.docx`).
+- La foto y las negritas no se importan.
+
+## Usarla en tu ordenador
+
+Necesitas [Node.js](https://nodejs.org) 18 o superior.
 
 ```bash
+git clone https://github.com/miauro/chamba-vitae.git
+cd chamba-vitae
 npm install
-npm run dev       # http://localhost:5173
-npm run build     # genera dist/
+npm run dev        # abre http://localhost:5173
 ```
 
-## Publicar en GitHub Pages
+Otros comandos: `npm run build` genera la versión publicable en `dist/`; `npm run preview` la sirve en local.
 
-1. Sube el repo a GitHub (rama `main`).
+## Publicarla en GitHub Pages
+
+1. Haz un fork (o sube tu copia) del repositorio.
 2. En *Settings → Pages → Build and deployment*, elige **GitHub Actions**.
-3. Cada `git push` a `main` publica la app con [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
+3. Cada `git push` a `main` la publica con [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
 
-La carpeta `mis-cvs/` está en `.gitignore`: guarda ahí tus JSON personales sin subirlos.
+## Tus datos y el repositorio
+
+Si guardas tus CVs dentro de la carpeta del proyecto, ponlos en `mis-cvs/`: está en [.gitignore](.gitignore) y nunca se sube. También se ignoran los `cv-*.json` exportados y los PDF/Word que dejes en la raíz.
+
+## Para desarrolladores
+
+React 18 + TypeScript + Vite. Sin backend.
+
+| Archivo | Qué hace |
+|---|---|
+| [src/types.ts](src/types.ts) | Formato del CV (el JSON que se exporta). Los textos son `{ "es": "…", "en": "…" }`. |
+| [src/model.ts](src/model.ts) | Creación y validación de datos (`normalizeCV` acepta JSON importados). |
+| [src/importer.ts](src/importer.ts) | Importación desde PDF (pdf.js), Word (`.docx`) y texto. Se carga solo al usarla. |
+| [src/components/Preview.tsx](src/components/Preview.tsx) + [src/styles/cv.css](src/styles/cv.css) | La hoja A4: lo que se ve es lo que se imprime. |
+| [src/components/Editor.tsx](src/components/Editor.tsx) | Formularios del contenido. |
+| [src/components/Tour.tsx](src/components/Tour.tsx) | Guía de bienvenida. |
+| [src/i18n.ts](src/i18n.ts) | Textos de la interfaz (ES/EN) y etiquetas fijas del CV («Hoy», «Present»…). |
 
 ---
 
 ## English
 
-A browser-based CV editor: edit, reorder, switch language and download a PDF. No server or account: your data stays in your browser and in the JSON you export.
+**Chamba Vitae** is a browser-based CV editor. Fill in your details once, then switch the CV language in one click, create variants for different kinds of jobs by hiding what does not fit, reorder by dragging, import your current CV from PDF or Word, and download a PDF with real, selectable text. No accounts, no servers: your data stays in your browser and in the JSON files you export.
 
-- Edit on the left; the right-hand preview is exactly the PDF.
-- **File → Export JSON** to back up; **Import JSON** (or drop the file onto the window) to restore.
-- **Download PDF** opens the print dialog: choose *Save as PDF* and turn off *Headers and footers*.
-- Every text field stores one value per language. Untranslated fields fall back to another language, so you only translate what differs.
-- **Variants** reuse the same data for different job applications. The eye icon hides an item in the active variant only.
-- `**bold**` works in any text.
+**Getting started:** a quick tour appears on first launch (replay it with the **?** button). Import your CV from *File → Import CV*, or start from *File → Blank CV*. Edit on the left; the right-hand sheet is exactly the PDF. Untranslated fields are highlighted in amber. Use *Variants* plus the eye icon to tailor the CV per job. Download with *Download PDF* → *Save as PDF* (turn off *Headers and footers*). Export the JSON regularly as a backup.
 
-Run it locally with `npm install && npm run dev`. To deploy, set *Settings → Pages* to **GitHub Actions** and push to `main`.
+**Run locally:** `npm install && npm run dev`. **Deploy:** set *Settings → Pages* to **GitHub Actions** and push to `main`.

@@ -12,7 +12,9 @@ import {
   IconExport,
   IconFile,
   IconGlobe,
+  IconHelp,
   IconImport,
+  IconImportCv,
   IconInfo,
   IconPdf,
   IconRedo,
@@ -24,6 +26,7 @@ import {
 } from './components/icons';
 import { DesignPanel, VariantsPanel } from './components/Panels';
 import { CVPreview, PreviewPane } from './components/Preview';
+import { Tour } from './components/Tour';
 import { UI_LANGS, UI_LANG_NAMES, langName, makeT, type UIKey } from './i18n';
 import { allTexts, blankCV, normalizeCV } from './model';
 import { sampleCV } from './sample';
@@ -39,8 +42,10 @@ const TABS: [Tab, UIKey, Icon][] = [
 
 interface Toast {
   text: string;
-  kind: 'ok' | 'error';
+  kind: 'ok' | 'error' | 'busy';
 }
+
+const CV_FILE = /\.(pdf|docx?|txt|md)$/i;
 
 export default function App() {
   const store = useCVStore();
@@ -49,7 +54,9 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('content');
   const [toast, setToast] = useState<Toast | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [tourOpen, setTourOpen] = useState(!prefs.tourDone);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cvFileRef = useRef<HTMLInputElement>(null);
 
   const lang = cv.languages.includes(prefs.lang) ? prefs.lang : cv.languages[0];
   const variant = cv.variants.find((v) => v.id === prefs.variantId) ?? cv.variants[0];
@@ -61,8 +68,8 @@ export default function App() {
   }, [prefs.uiLang]);
 
   useEffect(() => {
-    if (!toast) return;
-    const id = setTimeout(() => setToast(null), 4000);
+    if (!toast || toast.kind === 'busy') return;
+    const id = setTimeout(() => setToast(null), 5000);
     return () => clearTimeout(id);
   }, [toast]);
 
@@ -129,6 +136,30 @@ export default function App() {
     }
   };
 
+  /** Convierte un CV en PDF, Word o texto al formato de la app (el importador se carga al usarlo). */
+  const importCv = async (file?: File) => {
+    if (!file) return;
+    setToast({ text: t('importCvBusy'), kind: 'busy' });
+    try {
+      const { readLines, linesToCV } = await import('./importer');
+      const next = linesToCV(await readLines(file));
+      setToast(null);
+      if (!confirm(t('importCvConfirm').replace('{n}', String(next.sections.length)))) return;
+      store.replace(next);
+      setPrefs({ variantId: next.variants[0].id, lang: next.languages[0] });
+      setTab('content');
+      setToast({ text: t('importCvDone'), kind: 'ok' });
+    } catch (err) {
+      const code = (err as { code?: string }).code;
+      setToast({ text: t(code === 'doc' ? 'importCvDoc' : code === 'empty' ? 'importCvEmpty' : 'importCvError'), kind: 'error' });
+    }
+  };
+
+  const closeTour = () => {
+    setTourOpen(false);
+    setPrefs({ tourDone: true });
+  };
+
   const exportFile = () => {
     downloadFile(`cv-${slug(cv.profile.name)}.json`, JSON.stringify(cv, null, 2), 'application/json');
   };
@@ -143,8 +174,10 @@ export default function App() {
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
     setDragging(false);
-    const file = [...e.dataTransfer.files].find((f) => f.name.endsWith('.json') || f.type === 'application/json');
-    importFile(file);
+    const files = [...e.dataTransfer.files];
+    const json = files.find((f) => f.name.endsWith('.json') || f.type === 'application/json');
+    if (json) importFile(json);
+    else importCv(files.find((f) => CV_FILE.test(f.name)));
   };
 
   const ctx: EditorCtx = {
@@ -159,11 +192,13 @@ export default function App() {
   };
 
   const menuItems: [Icon, string, () => void][] = [
+    [IconImportCv, t('importCv'), () => cvFileRef.current?.click()],
     [IconImport, t('import'), () => fileRef.current?.click()],
     [IconExport, t('export'), exportFile],
     [IconSample, t('loadSample'), () => replaceWith(sampleCV)],
     [IconBlank, t('newBlank'), () => replaceWith(blankCV)],
   ];
+  const MENU_SEPARATORS = new Set([1, 3]);
 
   return (
     <EditorContext.Provider value={ctx}>
@@ -181,12 +216,12 @@ export default function App() {
         onDrop={onDrop}
       >
         <header className="toolbar">
-          <img className="brand" src={logoUrl} alt="CV Express" />
+          <img className="brand" src={logoUrl} alt="Chamba Vitae" />
 
           <div className="tb-sep" />
 
           {/* Qué CV estás viendo: variante + idioma del contenido, juntos */}
-          <div className="cv-context">
+          <div className="cv-context" data-tour="context">
           <label className="tb-group" title={t('variant')}>
             <IconVariants size={18} />
             <span className="tb-label">{t('variant')}</span>
@@ -237,7 +272,7 @@ export default function App() {
             </button>
           </div>
 
-          <details className="dropdown">
+          <details className="dropdown" data-tour="file">
             <summary className="btn">
               <IconFile size={18} />
               {t('file')}
@@ -245,7 +280,7 @@ export default function App() {
             </summary>
             <div className="menu" onClick={closeMenus}>
               {menuItems.map(([ItemIcon, label, action], i) => (
-                <button key={label} type="button" onClick={action} className={i === 2 ? 'sep' : undefined}>
+                <button key={label} type="button" onClick={action} className={MENU_SEPARATORS.has(i) ? 'sep' : undefined}>
                   <ItemIcon size={18} />
                   {label}
                 </button>
@@ -262,10 +297,33 @@ export default function App() {
               e.target.value = '';
             }}
           />
+          <input
+            ref={cvFileRef}
+            type="file"
+            accept=".pdf,.docx,.txt,.md,application/pdf"
+            hidden
+            onChange={(e) => {
+              importCv(e.target.files?.[0]);
+              e.target.value = '';
+            }}
+          />
 
-          <button type="button" className="btn primary" title={t('printHint')} onClick={printPdf}>
+          <button type="button" className="btn primary" title={t('printHint')} onClick={printPdf} data-tour="pdf">
             <IconPdf size={18} />
             {t('downloadPdf')}
+          </button>
+
+          <button
+            type="button"
+            className="icon-btn lg"
+            title={t('help')}
+            aria-label={t('help')}
+            onClick={() => {
+              setTab('content');
+              setTourOpen(true);
+            }}
+          >
+            <IconHelp size={18} />
           </button>
 
           {/* Idioma de la propia app: secundario, en su menú y separado del idioma del CV */}
@@ -286,7 +344,7 @@ export default function App() {
         </header>
 
         <main className="main">
-          <section className="editor">
+          <section className="editor" data-tour="editor">
             <nav className="tabs" role="tablist">
               {TABS.map(([id, key, TabIcon]) => (
                 <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>
@@ -327,10 +385,13 @@ export default function App() {
         )}
         {toast && (
           <div className={`toast ${toast.kind}`} role="status">
-            {toast.kind === 'ok' ? <IconCheck size={18} weight="fill" /> : <IconWarning size={18} weight="fill" />}
+            {toast.kind === 'ok' && <IconCheck size={18} weight="fill" />}
+            {toast.kind === 'error' && <IconWarning size={18} weight="fill" />}
+            {toast.kind === 'busy' && <span className="spinner" aria-hidden="true" />}
             {toast.text}
           </div>
         )}
+        {tourOpen && <Tour onClose={closeTour} />}
       </div>
     </EditorContext.Provider>
   );
