@@ -291,11 +291,9 @@ export function SectionsEditor() {
         {KINDS.map((k) => {
           const KindIcon = KIND_ICON[k];
           return (
-            <button key={k} type="button" className="kind-btn" onClick={() => add(k)}>
-              <span className={`kind-icon k-${k}`}>
-                <KindIcon size={18} />
-              </span>
-              <span>
+            <button key={k} type="button" className={`kind-btn k-${k}`} onClick={() => add(k)}>
+              <KindIcon size={22} className="kind-btn-icon" />
+              <span className="kind-btn-text">
                 <b>{t(`kind_${k}` as UIKey)}</b>
                 <small>{t(`kindDesc_${k}` as UIKey)}</small>
               </span>

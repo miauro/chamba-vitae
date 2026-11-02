@@ -12,6 +12,9 @@ export interface EditorCtx {
   t: (key: UIKey) => string;
   setLang: (lang: string) => void;
   setVariantId: (id: string) => void;
+  /** Avisos cerrados para siempre (por id). */
+  dismissedNotes: string[];
+  dismissNote: (id: string) => void;
 }
 
 export const EditorContext = createContext<EditorCtx | null>(null);

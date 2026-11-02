@@ -84,6 +84,8 @@ export interface Variant {
   hidden: string[];
   /** Cargo propio de la variante (sustituye al del perfil). */
   title?: LText;
+  /** Plantilla: dos columnas con foto (por defecto) o una columna compatible con ATS. */
+  layout?: 'sidebar' | 'single';
 }
 
 export interface Settings {

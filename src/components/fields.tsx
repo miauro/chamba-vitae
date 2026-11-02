@@ -1,8 +1,8 @@
-import { useMemo, type ChangeEvent } from 'react';
+import { useMemo, type ChangeEvent, type ReactNode } from 'react';
 import { useEd } from '../context';
 import type { LText } from '../types';
 import { otherLang } from '../utils';
-import { IconArrowRight, IconEye, IconEyeOff } from './icons';
+import { IconArrowRight, IconEye, IconEyeOff, IconInfo, IconX } from './icons';
 
 interface LFieldProps {
   label?: string;
@@ -62,6 +62,21 @@ export function LField({ label, value, onChange, multiline, rows = 3, hint, plac
       </span>
       {hint && <span className="field-hint">{hint}</span>}
     </label>
+  );
+}
+
+/** Aviso informativo que se puede cerrar para siempre (se recuerda por `id`). */
+export function Note({ id, children }: { id: string; children: ReactNode }) {
+  const { dismissedNotes, dismissNote, t } = useEd();
+  if (dismissedNotes.includes(id)) return null;
+  return (
+    <div className="note">
+      <IconInfo size={16} />
+      <span>{children}</span>
+      <button type="button" className="note-close" title={t('dismiss')} aria-label={t('dismiss')} onClick={() => dismissNote(id)}>
+        <IconX size={14} />
+      </button>
+    </div>
   );
 }
 

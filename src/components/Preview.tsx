@@ -43,21 +43,25 @@ export function CVPreview({ cv, lang, variant }: { cv: CV; lang: string; variant
           </p>
         );
       case 'entries':
+        // Orden en el PDF: puesto, fechas, empresa, puntos (el que esperan los ATS);
+        // la rejilla mantiene la fecha en su columna de la derecha
         return vis(sec.items).map((e) => (
           <div key={e.id} className="cv-entry">
-            <div>
-              <h3>{tx(e.title)}</h3>
-              {tx(e.subtitle) && <p className="cv-sub">{tx(e.subtitle)}</p>}
-              {splitLines(tx(e.description)).map((line, i) => (
-                <p key={i} className="cv-bullet">
-                  <span aria-hidden="true">→</span>
-                  <span>
-                    <Rich text={line} />
-                  </span>
-                </p>
-              ))}
-            </div>
+            <h3>{tx(e.title)}</h3>
             <div className="cv-date">{formatRange(e, lang)}</div>
+            {tx(e.subtitle) && <p className="cv-sub">{tx(e.subtitle)}</p>}
+            {tx(e.description) && (
+              <div className="cv-bullets">
+                {splitLines(tx(e.description)).map((line, i) => (
+                  <p key={i} className="cv-bullet">
+                    <span aria-hidden="true">→</span>
+                    <span>
+                      <Rich text={line} />
+                    </span>
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         ));
       case 'pairs':
@@ -90,32 +94,47 @@ export function CVPreview({ cv, lang, variant }: { cv: CV; lang: string; variant
     }
   };
 
+  const single = variant.layout === 'single';
+
+  const contacts = (
+    <ul className="cv-contacts">
+      {vis(p.contacts).map((c) => {
+        const label = tx(c.label);
+        const value = tx(c.value);
+        const href = c.href ? normalizeHref(c.href) : autoHref(value);
+        return (
+          <li key={c.id}>
+            {label && <span>{label} </span>}
+            {href ? <a href={href}>{value}</a> : <b>{value}</b>}
+          </li>
+        );
+      })}
+    </ul>
+  );
+
   return (
-    <article className="cv-page" style={style} lang={lang}>
-      <aside className="cv-side">
-        <div>
-          <h1 className="cv-name">{p.name}</h1>
-          {title && <p className="cv-title">{title}</p>}
-        </div>
-        {s.showPhoto && p.photo && (
-          <div className="cv-photo">
-            <img src={p.photo} alt="" className={s.grayscalePhoto ? 'is-gray' : undefined} />
+    <article className={`cv-page${single ? ' is-single' : ''}`} style={style} lang={lang}>
+      {single ? (
+        // Una columna, sin foto: la versión más segura para portales de empleo y ATS
+        <header className="cv-header">
+          <h1 className="cv-name">{p.name.replace(/\s*\n\s*/g, ' ')}</h1>
+          {title && <p className="cv-title">{title.replace(/\s*\n\s*/g, ' ')}</p>}
+          {contacts}
+        </header>
+      ) : (
+        <aside className="cv-side">
+          <div>
+            <h1 className="cv-name">{p.name}</h1>
+            {title && <p className="cv-title">{title}</p>}
           </div>
-        )}
-        <ul className="cv-contacts">
-          {vis(p.contacts).map((c) => {
-            const label = tx(c.label);
-            const value = tx(c.value);
-            const href = c.href ? normalizeHref(c.href) : autoHref(value);
-            return (
-              <li key={c.id}>
-                {label && <span>{label}</span>}
-                {href ? <a href={href}>{value}</a> : <b>{value}</b>}
-              </li>
-            );
-          })}
-        </ul>
-      </aside>
+          {s.showPhoto && p.photo && (
+            <div className="cv-photo">
+              <img src={p.photo} alt="" className={s.grayscalePhoto ? 'is-gray' : undefined} />
+            </div>
+          )}
+          {contacts}
+        </aside>
+      )}
       <div className="cv-main">
         {vis(cv.sections).map((sec) => (
           <section key={sec.id} className={`cv-sec cv-sec--${sec.kind}`}>

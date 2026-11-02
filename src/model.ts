@@ -187,6 +187,7 @@ export function normalizeCV(raw: any): CV {
     name: str(v.name) || 'General',
     hidden: Array.isArray(v.hidden) ? v.hidden.filter((h: unknown) => typeof h === 'string') : [],
     ...(v.title ? { title: L(v.title) } : {}),
+    ...(v.layout === 'single' ? { layout: 'single' as const } : {}),
   }));
 
   const defaults = defaultSettings();

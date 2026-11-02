@@ -5,12 +5,12 @@ import { langName } from '../i18n';
 import { allTexts, collectIds, uid } from '../model';
 import type { Settings, Variant } from '../types';
 import { FONTS } from '../utils';
-import { LField, Toggle } from './fields';
+import { LField, Note, Toggle } from './fields';
 import {
   IconCamera,
   IconCheck,
   IconEye,
-  IconInfo,
+  IconLayout,
   IconPalette,
   IconPencil,
   IconPlus,
@@ -34,19 +34,19 @@ function Card({ icon: CardIcon, title, children }: { icon: Icon; title: string; 
   );
 }
 
-function Note({ children }: { children: ReactNode }) {
-  return (
-    <p className="note">
-      <IconInfo size={16} />
-      <span>{children}</span>
-    </p>
-  );
-}
 
 /* ---------- Diseño ---------- */
 
 export function DesignPanel() {
-  const { cv, update, t, uiLang, lang, setLang } = useEd();
+  const { cv, variant, update, t, uiLang, lang, setLang } = useEd();
+  const layout = variant.layout ?? 'sidebar';
+  const setLayout = (l: 'sidebar' | 'single') =>
+    update((d) => {
+      const v = d.variants.find((x) => x.id === variant.id);
+      if (!v) return;
+      if (l === 'single') v.layout = 'single';
+      else delete v.layout;
+    });
   const s = cv.settings;
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) =>
     update((d) => {
@@ -78,6 +78,23 @@ export function DesignPanel() {
 
   return (
     <>
+      <Card icon={IconLayout} title={t('template')}>
+        <div className="layout-grid">
+          {(['sidebar', 'single'] as const).map((l) => (
+            <button key={l} type="button" className={`layout-opt${layout === l ? ' on' : ''}`} aria-pressed={layout === l} onClick={() => setLayout(l)}>
+              <span className={`layout-thumb ${l}`} aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
+              <b>{t(l === 'single' ? 'layoutSingle' : 'layoutSidebar')}</b>
+              <small>{t(l === 'single' ? 'layoutSingleDesc' : 'layoutSidebarDesc')}</small>
+            </button>
+          ))}
+        </div>
+        <p className="field-hint">{t('templateFor').replace('{v}', variant.name)}</p>
+      </Card>
+
       <Card icon={IconTranslate} title={t('languages')}>
           <p className="field-hint">{t('languagesHint')}</p>
           <div className="stack-sm">
@@ -154,9 +171,10 @@ export function DesignPanel() {
       <Card icon={IconCamera} title={t('photoOptions')}>
           <Toggle label={t('showPhoto')} checked={s.showPhoto} onChange={(v) => set('showPhoto', v)} />
           <Toggle label={t('grayscalePhoto')} checked={s.grayscalePhoto} onChange={(v) => set('grayscalePhoto', v)} />
+          {layout === 'single' && <p className="field-hint">{t('photoSingleNote')}</p>}
       </Card>
 
-      <Note>{t('printHint')}</Note>
+      <Note id="print">{t('printHint')}</Note>
     </>
   );
 }
@@ -181,6 +199,7 @@ export function VariantsPanel() {
       name,
       hidden: [...variant.hidden],
       ...(variant.title ? { title: { ...variant.title } } : {}),
+      ...(variant.layout ? { layout: variant.layout } : {}),
     };
     update((d) => {
       d.variants.push(v);
@@ -207,7 +226,7 @@ export function VariantsPanel() {
 
   return (
     <>
-      <Note>{t('variantHelp')}</Note>
+      <Note id="variants">{t('variantHelp')}</Note>
       <Card icon={IconVariants} title={t('tabVariants')}>
           <div className="stack-sm">
             {cv.variants.map((v) => (

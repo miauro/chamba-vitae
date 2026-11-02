@@ -119,6 +119,25 @@ svg {
   font-size: 12px;
 }
 
+/* «Variante» lleva a la pestaña de variantes */
+.tb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: -4px -6px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tb-link:hover {
+  background: var(--hover);
+  color: var(--accent);
+}
+
 .select-wrap {
   position: relative;
   display: inline-flex;
@@ -299,6 +318,37 @@ svg {
 .note svg {
   margin-top: 1px;
   color: var(--accent);
+}
+
+.note > span {
+  flex: 1;
+}
+
+.note-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin: -2px -4px 0 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.note-close svg {
+  margin: 0;
+  color: var(--accent-ink);
+  opacity: 0.55;
+}
+
+.note-close:hover {
+  background: rgba(31, 127, 67, 0.12);
+}
+
+.note-close:hover svg {
+  opacity: 1;
 }
 
 .preview-area {
@@ -722,8 +772,8 @@ svg {
 }
 
 .kind-icon.k-skills {
-  background: #f8f3d9;
-  color: #8f7a12;
+  background: #e7eefb;
+  color: #2f5fbf;
 }
 
 .chev {
@@ -800,21 +850,44 @@ svg {
   gap: 8px;
 }
 
+/*
+ * Cada tarjeta lleva el degradado de un círculo del logo. El tono oscuro va arriba a la
+ * izquierda, donde está el texto, para que el blanco se lea bien.
+ */
 .kind-btn {
+  --k-grad: linear-gradient(135deg, #2fa258, #aec245);
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
-  border: 1px dashed var(--line-strong);
-  border-radius: 10px;
-  background: none;
+  gap: 12px;
+  padding: 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--k-grad);
   text-align: left;
   cursor: pointer;
-  color: var(--muted);
-  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(40, 32, 20, 0.08);
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
 }
 
-.kind-btn span {
+.kind-btn.k-text {
+  --k-grad: linear-gradient(135deg, #ce4d9c, #d85565);
+}
+
+.kind-btn.k-entries {
+  --k-grad: linear-gradient(135deg, #2fa258, #aec245);
+}
+
+.kind-btn.k-pairs {
+  --k-grad: linear-gradient(135deg, #d65600, #e7be38);
+}
+
+/* El logo tiene tres colores para cuatro tipos: este va en azul para no confundirse con el naranja */
+.kind-btn.k-skills {
+  --k-grad: linear-gradient(135deg, #3468d1, #22a9a0);
+}
+
+.kind-btn-text {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -822,13 +895,18 @@ svg {
   gap: 2px;
 }
 
+.kind-btn b,
+.kind-btn small {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
 .kind-btn b {
-  color: var(--text);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .kind-btn small {
+  opacity: 0.92;
   font-size: 11.5px;
   line-height: 1.3;
 }
@@ -839,10 +917,9 @@ svg {
 }
 
 .kind-btn:hover {
-  border-style: solid;
-  border-color: var(--accent-line);
-  background: var(--accent-soft);
-  color: var(--accent);
+  filter: saturate(1.1) brightness(1.04);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(40, 32, 20, 0.14);
 }
 
 .kind-btn:hover .kind-plus {
@@ -1128,6 +1205,112 @@ svg {
   color: var(--accent);
 }
 
+/* Selector de plantilla con miniatura */
+.layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.layout-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  text-align: left;
+  cursor: pointer;
+}
+
+.layout-opt:hover {
+  border-color: var(--line-strong);
+}
+
+.layout-opt.on {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.layout-opt b {
+  font-size: 13px;
+}
+
+.layout-opt small {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+/* Miniaturas dibujadas con CSS: i = bloques de la hoja */
+.layout-thumb {
+  position: relative;
+  width: 100%;
+  height: 64px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.layout-thumb i {
+  position: absolute;
+  border-radius: 2px;
+  background: var(--line-strong);
+}
+
+.layout-thumb.sidebar i:nth-child(1) {
+  left: 8px;
+  top: 8px;
+  width: 22%;
+  height: 22px;
+  background: var(--muted);
+}
+
+.layout-thumb.sidebar i:nth-child(2) {
+  left: 8px;
+  top: 34px;
+  width: 22%;
+  height: 22px;
+}
+
+.layout-thumb.sidebar i:nth-child(3) {
+  left: calc(22% + 16px);
+  right: 8px;
+  top: 8px;
+  height: 48px;
+  background: repeating-linear-gradient(to bottom, var(--line-strong) 0 3px, transparent 3px 8px);
+}
+
+.layout-thumb.single i:nth-child(1) {
+  left: 8px;
+  top: 8px;
+  width: 40%;
+  height: 6px;
+  background: var(--muted);
+}
+
+.layout-thumb.single i:nth-child(2) {
+  left: 8px;
+  top: 17px;
+  width: 60%;
+  height: 3px;
+}
+
+.layout-thumb.single i:nth-child(3) {
+  left: 8px;
+  right: 8px;
+  top: 26px;
+  height: 30px;
+  background: repeating-linear-gradient(to bottom, var(--line-strong) 0 3px, transparent 3px 8px);
+}
+
+.layout-opt.on .layout-thumb i:first-child {
+  background: var(--accent);
+}
+
 .color-row {
   display: flex;
   flex-wrap: wrap;
@@ -1243,21 +1426,14 @@ svg {
   width: 340px;
   max-width: calc(100vw - 32px);
   padding: 20px 20px 16px;
-  border-radius: 16px;
-  background: #fff;
+  /* Borde con el degradado del logo alrededor de toda la tarjeta */
+  border: 3px solid transparent;
+  border-radius: 18px;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(135deg, #ce4d9c, #d85565 25%, #2fa258 50%, #aec245 65%, #e7be38 80%, #d65600) border-box;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
   transition: top 0.25s ease, left 0.25s ease;
-}
-
-.tour-pop::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 20px;
-  right: 20px;
-  height: 3px;
-  border-radius: 0 0 3px 3px;
-  background: var(--brand-gradient);
 }
 
 .tour-pop.center {

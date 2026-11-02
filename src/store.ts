@@ -102,6 +102,8 @@ export interface Prefs {
   variantId: string;
   /** Ya vio (o se saltó) la guía de bienvenida. */
   tourDone: boolean;
+  /** Avisos informativos que el usuario ha cerrado para siempre. */
+  dismissedNotes: string[];
 }
 
 export function usePrefs() {
@@ -111,6 +113,7 @@ export function usePrefs() {
       lang: '',
       variantId: '',
       tourDone: false,
+      dismissedNotes: [],
     };
     try {
       return { ...defaults, ...JSON.parse(read(PREFS_KEY) || '{}') };

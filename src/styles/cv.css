@@ -152,7 +152,8 @@
   font-weight: 300;
   line-height: 1.65;
   text-align: justify;
-  hyphens: auto;
+  /* Sin guionado: «desarro-llo» partido confunde a los lectores automáticos (ATS) */
+  hyphens: manual;
 }
 
 .cv-page strong {
@@ -198,7 +199,14 @@
   flex: none;
 }
 
+/* Título y fecha en la primera fila; empresa y puntos debajo, en la columna del título */
+.cv-entry > :not(.cv-date) {
+  grid-column: 1;
+}
+
 .cv-date {
+  grid-column: 2;
+  grid-row: 1;
   font-size: 8pt;
   white-space: nowrap;
   padding-top: 0.2mm;
@@ -242,6 +250,94 @@
 .cv-skill-row ul {
   list-style: none;
   line-height: 1.65;
+}
+
+/* ----- Plantilla de una columna (compatible ATS) ----- */
+
+.cv-page.is-single {
+  display: block;
+}
+
+.cv-header {
+  margin-bottom: 5mm;
+}
+
+.is-single .cv-name {
+  font-size: calc(var(--cv-name-size) * 0.85);
+  line-height: 1.05;
+}
+
+.is-single .cv-title {
+  margin-top: 1.5mm;
+  font-size: calc(var(--cv-name-size) * 0.5);
+  line-height: 1.2;
+}
+
+/* Contacto en una línea: «Email: … · Teléfono: … · …» */
+.is-single .cv-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 0;
+  margin-top: 4mm;
+  list-style: none;
+}
+
+.is-single .cv-contacts li {
+  display: inline;
+  padding: 0;
+  border: 0;
+}
+
+.is-single .cv-contacts li + li::before {
+  content: '·';
+  margin: 0 2.5mm;
+  color: var(--cv-muted);
+}
+
+.is-single .cv-contacts span {
+  color: var(--cv-muted);
+}
+
+/* Cada sección: título encima y contenido a todo el ancho */
+.is-single .cv-sec {
+  grid-template-columns: 1fr;
+  row-gap: 2mm;
+  padding: 2.2mm 0 4.5mm;
+}
+
+.is-single .cv-entry + .cv-entry {
+  margin-top: 3.5mm;
+}
+
+.is-single .cv-text {
+  font-size: 8pt;
+  font-weight: 400;
+  text-align: left;
+}
+
+.is-single .cv-entry h3 {
+  font-size: 9pt;
+}
+
+.is-single .cv-bullet,
+.is-single .cv-sub {
+  font-size: 8pt;
+}
+
+/* Habilidades en línea, separadas por comas: «Illustrator, Photoshop, …» */
+.is-single .cv-skill-row {
+  grid-template-columns: 26mm 1fr;
+}
+
+.is-single .cv-skill-row ul {
+  display: flex;
+  flex-wrap: wrap;
+  line-height: 1.5;
+}
+
+.is-single .cv-skill-row li:not(:last-child)::after {
+  content: ',';
+  margin-right: 1.2mm;
 }
 
 /* Guía de salto de página en pantalla */

@@ -3,11 +3,13 @@ import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } fro
 import logoUrl from './assets/logo.svg';
 import { EditorContext, type EditorCtx } from './context';
 import { ProfileEditor, SectionsEditor } from './components/Editor';
+import { Note } from './components/fields';
 import {
   IconBlank,
   IconCaretDown,
   IconCheck,
   IconContent,
+  IconCopyText,
   IconDesign,
   IconExport,
   IconFile,
@@ -15,7 +17,6 @@ import {
   IconHelp,
   IconImport,
   IconImportCv,
-  IconInfo,
   IconPdf,
   IconRedo,
   IconSample,
@@ -29,6 +30,7 @@ import { CVPreview, PreviewPane } from './components/Preview';
 import { Tour } from './components/Tour';
 import { UI_LANGS, UI_LANG_NAMES, langName, makeT, type UIKey } from './i18n';
 import { allTexts, blankCV, normalizeCV } from './model';
+import { cvToText } from './plaintext';
 import { sampleCV } from './sample';
 import { useCVStore, usePrefs } from './store';
 import { countMissing, downloadFile, slug } from './utils';
@@ -160,6 +162,15 @@ export default function App() {
     setPrefs({ tourDone: true });
   };
 
+  const copyText = async () => {
+    try {
+      await navigator.clipboard.writeText(cvToText(cv, variant, lang));
+      setToast({ text: t('copied'), kind: 'ok' });
+    } catch {
+      setToast({ text: t('copyError'), kind: 'error' });
+    }
+  };
+
   const exportFile = () => {
     downloadFile(`cv-${slug(cv.profile.name)}.json`, JSON.stringify(cv, null, 2), 'application/json');
   };
@@ -189,16 +200,19 @@ export default function App() {
     t,
     setLang: (l) => setPrefs({ lang: l }),
     setVariantId: (id) => setPrefs({ variantId: id }),
+    dismissedNotes: prefs.dismissedNotes,
+    dismissNote: (id) => setPrefs({ dismissedNotes: [...prefs.dismissedNotes, id] }),
   };
 
   const menuItems: [Icon, string, () => void][] = [
     [IconImportCv, t('importCv'), () => cvFileRef.current?.click()],
     [IconImport, t('import'), () => fileRef.current?.click()],
     [IconExport, t('export'), exportFile],
+    [IconCopyText, t('copyText'), copyText],
     [IconSample, t('loadSample'), () => replaceWith(sampleCV)],
     [IconBlank, t('newBlank'), () => replaceWith(blankCV)],
   ];
-  const MENU_SEPARATORS = new Set([1, 3]);
+  const MENU_SEPARATORS = new Set([1, 3, 4]);
 
   return (
     <EditorContext.Provider value={ctx}>
@@ -222,9 +236,11 @@ export default function App() {
 
           {/* Qué CV estás viendo: variante + idioma del contenido, juntos */}
           <div className="cv-context" data-tour="context">
-          <label className="tb-group" title={t('variant')}>
-            <IconVariants size={18} />
-            <span className="tb-label">{t('variant')}</span>
+          <div className="tb-group">
+            <button type="button" className="tb-link" title={t('manageVariants')} onClick={() => setTab('variants')}>
+              <IconVariants size={18} />
+              <span className="tb-label">{t('variant')}</span>
+            </button>
             <span className="select-wrap">
               <select value={variant.id} onChange={(e) => setPrefs({ variantId: e.target.value })}>
                 {cv.variants.map((v) => (
@@ -235,7 +251,7 @@ export default function App() {
               </select>
               <IconCaretDown size={12} weight="bold" />
             </span>
-          </label>
+          </div>
 
           <div className="tb-group" title={t('cvLanguage')}>
             <IconTranslate size={18} />
@@ -358,10 +374,7 @@ export default function App() {
               {tab === 'content' && (
                 <>
                   {(cv.variants.length > 1 || cv.languages.length > 1) && (
-                    <p className="note">
-                      <IconInfo size={16} />
-                      <span>{t('editingNote').replace('{v}', variant.name).replace('{l}', langName(lang, prefs.uiLang))}</span>
-                    </p>
+                    <Note id="editing">{t('editingNote').replace('{v}', variant.name).replace('{l}', langName(lang, prefs.uiLang))}</Note>
                   )}
                   <ProfileEditor />
                   <SectionsEditor />
