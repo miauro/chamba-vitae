@@ -79,8 +79,9 @@ export function CVPreview({ cv, lang, variant }: { cv: CV; lang: string; variant
             <b>{tx(g.label)}</b>
             <div>
               {vis(g.rows).map((r) => (
-                <div key={r.id} className="cv-skill-row">
-                  <span>{tx(r.label)}</span>
+                // Sin categoría, los elementos ocupan también su hueco
+                <div key={r.id} className={`cv-skill-row${tx(r.label) ? '' : ' no-label'}`}>
+                  {tx(r.label) && <span>{tx(r.label)}</span>}
                   <ul>
                     {splitLines(tx(r.items)).map((item, i) => (
                       <li key={i}>{item}</li>

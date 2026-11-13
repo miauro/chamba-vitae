@@ -329,6 +329,11 @@
   grid-template-columns: 26mm 1fr;
 }
 
+.cv-skill-row.no-label,
+.is-single .cv-skill-row.no-label {
+  grid-template-columns: 1fr;
+}
+
 .is-single .cv-skill-row ul {
   display: flex;
   flex-wrap: wrap;
