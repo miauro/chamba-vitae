@@ -755,6 +755,25 @@ svg {
   color: var(--accent);
 }
 
+/* Sección propia de la variante activa */
+.card.is-own {
+  border-left: 3px solid var(--brand);
+}
+
+.own-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* Cada tipo de sección toma uno de los colores del logo */
 .kind-icon.k-text {
   background: #fbebf2;

@@ -10,6 +10,7 @@ import {
   newSkillGroup,
   newSkillRow,
   profileTexts,
+  inVariant,
   reId,
   sectionTexts,
 } from '../model';
@@ -38,6 +39,7 @@ import {
   IconLink,
   IconPlus,
   IconSort,
+  IconSplit,
   IconTrash,
   IconUser,
 } from './icons';
@@ -258,8 +260,10 @@ function ContactRow({
 /* ---------- Secciones ---------- */
 
 export function SectionsEditor() {
-  const { cv, update, t } = useEd();
+  const { cv, variant, update, t } = useEd();
   const [openId, setOpenId] = useState<string | null>(null);
+  // Solo las secciones de esta variante: las comunes y las suyas propias
+  const sections = cv.sections.filter((s) => inVariant(s, variant.id));
 
   const add = (kind: SectionKind) => {
     const s = newSection(kind);
@@ -269,13 +273,21 @@ export function SectionsEditor() {
     setOpenId(s.id);
   };
 
+  // Los índices son de la lista filtrada: se traducen a posiciones de la lista completa
+  const onMove = (a: number, b: number) =>
+    update((d) => {
+      const from = d.sections.findIndex((x) => x.id === sections[a].id);
+      const to = d.sections.findIndex((x) => x.id === sections[b].id);
+      move(d.sections, from, to);
+    });
+
   return (
     <div className="stack" data-tour="sections">
       <h2 className="pane-title">{t('sections')}</h2>
       <SortableList
-        items={cv.sections}
+        items={sections}
         className="stack"
-        onMove={(a, b) => update((d) => move(d.sections, a, b))}
+        onMove={onMove}
         render={(s, handle) => (
           <SectionCard
             section={s}
@@ -334,8 +346,22 @@ function SectionCard({
     onDuplicated(copy.id);
   };
 
+  /** Copia propia para esta variante; la común se oculta aquí y sigue igual en las demás. */
+  const split = () => {
+    const copy = { ...reId(s), only: variant.id };
+    update((d) => {
+      const i = d.sections.findIndex((x) => x.id === s.id);
+      d.sections.splice(i + 1, 0, copy);
+      const v = d.variants.find((x) => x.id === variant.id);
+      if (v && !v.hidden.includes(s.id)) v.hidden.push(s.id);
+    });
+    onDuplicated(copy.id);
+  };
+
+  const shared = !s.only && cv.variants.length > 1;
+
   return (
-    <div className={`card${variant.hidden.includes(s.id) ? ' is-hidden' : ''}`}>
+    <div className={`card${variant.hidden.includes(s.id) ? ' is-hidden' : ''}${s.only ? ' is-own' : ''}`}>
       <div className="card-head">
         <DragHandle {...handle} />
         <button type="button" className="card-title" onClick={onToggle} aria-expanded={open}>
@@ -345,7 +371,18 @@ function SectionCard({
           </span>
           <span>{title}</span>
           <MissingBadge count={countMissing(sectionTexts(s), lang, cv.languages)} />
+          {s.only && (
+            <span className="own-badge" title={t('ownHint')}>
+              <IconSplit size={12} weight="bold" />
+              {variant.name}
+            </span>
+          )}
         </button>
+        {shared && (
+          <button type="button" className="icon-btn act" title={t('splitSection').replace('{v}', variant.name)} onClick={split}>
+            <IconSplit />
+          </button>
+        )}
         <EyeButton id={s.id} />
         <button type="button" className="icon-btn act" title={t('duplicate')} onClick={duplicate}>
           <IconCopy />

@@ -52,6 +52,8 @@ export interface SkillGroup {
 interface SectionBase {
   id: string;
   title: LText;
+  /** Id de la única variante en la que existe. Sin él, la sección es común a todas. */
+  only?: string;
 }
 
 export interface TextSection extends SectionBase {

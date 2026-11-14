@@ -23,6 +23,7 @@ export {
   FrameCorners as IconFit,
   MagnifyingGlassMinus as IconZoomOut,
   MagnifyingGlassPlus as IconZoomIn,
+  GitFork as IconSplit,
   Globe as IconGlobe,
   ClipboardText as IconCopyText,
   Info as IconInfo,

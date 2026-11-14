@@ -10,6 +10,7 @@ import type {
   Settings,
   SkillGroup,
   SkillRow,
+  Variant,
 } from './types';
 
 export const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
@@ -83,6 +84,12 @@ export function reId(section: Section): Section {
   return s;
 }
 
+/** La sección existe en esta variante: es común o es propia de ella. */
+export const inVariant = (s: Section, variantId: string) => !s.only || s.only === variantId;
+
+/** La sección se ve en el CV de esta variante (existe en ella y no está oculta). */
+export const sectionVisible = (s: Section, v: Variant) => inVariant(s, v.id) && !v.hidden.includes(s.id);
+
 export function collectIds(cv: CV): Set<string> {
   const ids = new Set<string>(cv.profile.contacts.map((c) => c.id));
   for (const s of cv.sections) {
@@ -147,7 +154,7 @@ export function normalizeCV(raw: any): CV {
 
   const sections: Section[] = [];
   for (const s of arr(raw.sections)) {
-    const base = { id: id(s), title: L(s.title) };
+    const base = { id: id(s), title: L(s.title), ...(typeof s.only === 'string' && s.only ? { only: s.only } : {}) };
     if (s.kind === 'text') sections.push({ ...base, kind: 'text', body: L(s.body) });
     if (s.kind === 'entries')
       sections.push({

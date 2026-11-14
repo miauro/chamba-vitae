@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useEd } from '../context';
+import { sectionVisible } from '../model';
 import type { CV, LText, Section, Variant } from '../types';
 import { autoHref, fontStack, formatRange, getText, normalizeHref, splitLines } from '../utils';
 import { IconFit, IconZoomIn, IconZoomOut } from './icons';
@@ -137,7 +138,7 @@ export function CVPreview({ cv, lang, variant }: { cv: CV; lang: string; variant
         </aside>
       )}
       <div className="cv-main">
-        {vis(cv.sections).map((sec) => (
+        {cv.sections.filter((sec) => sectionVisible(sec, variant)).map((sec) => (
           <section key={sec.id} className={`cv-sec cv-sec--${sec.kind}`}>
             <h2>{tx(sec.title)}</h2>
             <div className="cv-sec-body">{body(sec)}</div>

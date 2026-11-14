@@ -1,3 +1,4 @@
+import { sectionVisible } from './model';
 import type { CV, LText, Variant } from './types';
 import { formatRange, getText, splitLines } from './utils';
 
@@ -19,7 +20,7 @@ export function cvToText(cv: CV, variant: Variant, lang: string): string {
     .filter(Boolean);
   if (contacts.length) out.push(contacts.join(' | '));
 
-  for (const s of vis(cv.sections)) {
+  for (const s of cv.sections.filter((x) => sectionVisible(x, variant))) {
     const lines: string[] = [];
     if (s.kind === 'text') lines.push(tx(s.body));
     if (s.kind === 'entries')

@@ -2,7 +2,7 @@ import type { Icon } from '@phosphor-icons/react';
 import type { ReactNode } from 'react';
 import { useEd } from '../context';
 import { langName } from '../i18n';
-import { allTexts, collectIds, uid } from '../model';
+import { allTexts, collectIds, reId, uid } from '../model';
 import type { Settings, Variant } from '../types';
 import { FONTS } from '../utils';
 import { LField, Note, Toggle } from './fields';
@@ -203,6 +203,8 @@ export function VariantsPanel() {
     };
     update((d) => {
       d.variants.push(v);
+      // La nueva variante parte de la actual: sus secciones propias también se copian
+      for (const s of d.sections.filter((x) => x.only === variant.id)) d.sections.push({ ...reId(s), only: v.id });
     });
     setVariantId(v.id);
   };
@@ -220,6 +222,7 @@ export function VariantsPanel() {
     if (cv.variants.length < 2 || !confirm(t('confirmDeleteVariant'))) return;
     update((d) => {
       d.variants = d.variants.filter((x) => x.id !== v.id);
+      d.sections = d.sections.filter((s) => s.only !== v.id);
     });
     if (v.id === variant.id) setVariantId(cv.variants.find((x) => x.id !== v.id)!.id);
   };
